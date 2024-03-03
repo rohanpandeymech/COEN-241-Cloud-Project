@@ -33,3 +33,20 @@ possibly using machine learning models or NLP libraries.
 ● Build, train and deploy required ML models. 6. AWS IAM (Identity and Access Management)
 ● Use IAM to manage permissions and ensure that each service interacts securely with others.
 ● Define roles and policies for Lambda, API Gateway, DynamoDB, and S3 to follow the principle of least privilege.
+
+## Usage
+
+1. Provide the url of article that you want to summarize in the web interface.
+2. AI Summarizer will process the text and generate a summary for you.
+3. You can access the live version of Bronco-Summarisation-Tool here: [Bronco-Summarisation-Tool](https://)
+4. Remember to provide only article **url** otherwise it may not work.
+
+## Features
+
+- Summarize lengthy text documents quickly.
+- Customize the length of the summary.
+- User-friendly web interface built with React.
+- Fast development environment with Vite.
+- Utilizes advanced NLP techniques for accurate summarization.
+- **Redux Toolkit Query**: Seamless API data fetching and state management.
+- **Summarize History**: Keep track of up to 5 recent searches for easy reference.
