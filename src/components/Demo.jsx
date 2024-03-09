@@ -5,13 +5,17 @@ import { useLazyGetSummaryQuery } from "../services/article";
 const Demo = () => {
   const [article, setArticle] = useState({
     url: "",
+    text: "",
     summary: "",
   });
 
   const [allArticles, setAllArticles] = useState([]);
   const [copied, setCopied] = useState("");
+  const [inputMode, setInputMode] = useState("url"); // To toggle between URL and Text input
+  const apiEndpoint = 'https://89edi8le40.execute-api.us-east-2.amazonaws.com/dev/summarize'; //AWS API endpoint
 
-  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
+
+  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery(apiEndpoint); // API endpoint passed to hook
 
   useEffect(() => {
     const articlesFromLocalStorage = JSON.parse(
@@ -24,15 +28,18 @@ const Demo = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { data } = await getSummary({ articleUrl: article.url });
+    // To use URL or text for summary
+    const payload = inputMode == "url" ? { articleUrl: articleUrl} : { articleText: article.text};
+    const { data } = await getSummary(payload);
     if (data?.summary) {
       const newArticle = {
         ...article,
         summary: data.summary,
       };
-
+      // Use URL or first 50 characters of text as a unique identifier
+      const uniqueIdentifier = inputMode === "url" ? article.url : article.text.substring(0, 50);
       const articleExists = allArticles.some(
-        (item) => item.url === article.url
+        (item) => item.url === uniqueIdentifier || item.text?.substring(0, 50) === uniqueIdentifier
       );
       if (!articleExists) {
         const updatedArticles = [newArticle, ...allArticles];
@@ -52,33 +59,59 @@ const Demo = () => {
 
   return (
     <section className="mt-16 w-full max-w-xl">
-      <div className="flex flex-col w-full gap-2">
-        <form
-          className="relative flex justify-center items-center"
-          onSubmit={handleSubmit}
+      <div className="flex justify-between items-center mb-4">
+        <span>Input Mode: {inputMode === "url" ? "URL" : "Text"}</span>
+        <button
+          onClick={() => setInputMode(inputMode === "url" ? "text" : "url")}
+          className="toggle_btn" // Style this button accordingly
         >
-          <img
-            src={linkIcon}
-            alt="linkicon"
-            className="absolute left-0 my-2 ml-3 w-5"
-          />
-          <input
-            type="url"
-            placeholder="Enter a URL"
-            value={article.url}
-            onChange={(e) =>
-              setArticle({
-                ...article,
-                url: e.target.value,
-              })
-            }
-            required
-            className="url_input peer"
-          />
+          Toggle to {inputMode === "url" ? "Text" : "URL"}
+        </button>
+      </div>
+      <div className="flex flex-col w-full gap-2">
+        <form className="flex justify-center items-center" onSubmit={handleSubmit}>
+          {inputMode === "url" && (
+            <img src={linkIcon} alt="link icon" className="link-icon" />
+          )}
+          {inputMode === "url" ? (
+            <input
+              type="url"
+              placeholder="Enter a URL"
+              value={article.url}
+              onChange={(e) =>
+                setArticle({
+                  ...article,
+                  url: e.target.value,
+                })
+              }
+              required
+              className="input-field" // Adjust padding to accommodate icon
+              style={{ paddingLeft: '2rem' }} // Adjust this value based on the size of your icon
+            />
+          ) : (
+            <textarea
+              placeholder="Enter text here (Max 1000 words) :)"
+              value={article.text}
+              onChange={(e) =>
+                setArticle({
+                  ...article,
+                  text: e.target.value,
+                })
+              }
+              maxLength={1000} // Limit input to 1000 characters
+              required
+              className="text_input peer"
+              style={{ 
+                minHeight: '20vh',
+                maxHeight: '50vh', 
+                width: '100%', 
+                resize: 'vertical' }} // Inline styling for textarea
+            ></textarea>
+          )}
           <button
             type="submit"
-            className="submit_btn peer-focus:border-gray-700 peer-focus:text-gray-700"
-          >
+            className="search-button"
+          > 
             🔍
           </button>
         </form>

@@ -1,24 +1,21 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
-const rapidApiKey = import.meta.env.VITE_RAPID_API_ARTICLE_KEY;
+// In your services/article.js or wherever your API slice is defined
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const articleApi = createApi({
-  reducerPath: "articleApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "https://article-extractor-and-summarizer.p.rapidapi.com/",
-    prepareHeaders: (headers) => {
-      headers.set("X-RapidAPI-Key", rapidApiKey);
-      headers.set(
-        "X-RapidAPI-Host",
-        "article-extractor-and-summarizer.p.rapidapi.com"
-      );
-      return headers;
-    },
-  }),
+  reducerPath: 'api',
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://89edi8le40.execute-api.us-east-2.amazonaws.com/dev/' }),
   endpoints: (builder) => ({
     getSummary: builder.query({
-      query: (params) =>
-        `/summarize?url=${encodeURIComponent(params.articleUrl)}&length=3`,
+      query: (articleUrl) => ({
+        url: `summarize`, // The endpoint path
+        method: 'POST',
+        body: {
+          url: articleUrl
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
     }),
   }),
 });
