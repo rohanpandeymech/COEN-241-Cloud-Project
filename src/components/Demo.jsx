@@ -12,10 +12,9 @@ const Demo = () => {
   const [allArticles, setAllArticles] = useState([]);
   const [copied, setCopied] = useState("");
   const [inputMode, setInputMode] = useState("url"); // To toggle between URL and Text input
-  const apiEndpoint = 'https://89edi8le40.execute-api.us-east-2.amazonaws.com/dev/summarize'; //AWS API endpoint
 
 
-  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery(apiEndpoint); // API endpoint passed to hook
+  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
 
   useEffect(() => {
     const articlesFromLocalStorage = JSON.parse(
@@ -29,7 +28,7 @@ const Demo = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // To use URL or text for summary
-    const payload = inputMode == "url" ? { articleUrl: articleUrl} : { articleText: article.text};
+    const payload = inputMode == "url" ? { articleUrl: article.url} : { articleText: article.text};
     const { data } = await getSummary(payload);
     if (data?.summary) {
       const newArticle = {
@@ -62,7 +61,15 @@ const Demo = () => {
       <div className="flex justify-between items-center mb-4">
         <span>Input Mode: {inputMode === "url" ? "URL" : "Text"}</span>
         <button
-          onClick={() => setInputMode(inputMode === "url" ? "text" : "url")}
+          onClick={() => {
+            setInputMode(inputMode === "url" ? "text" : "url");
+            setArticle(prevState => ({
+              ...prevState,
+              url: "",
+              text: "",
+              // Optionally reset summary as well
+            }));
+          }}
           className="toggle_btn" // Style this button accordingly
         >
           Toggle to {inputMode === "url" ? "Text" : "URL"}
@@ -119,7 +126,15 @@ const Demo = () => {
           {allArticles.map((item, index) => (
             <div
               key={`link-${index}`}
-              onClick={() => setArticle(item)}
+              onClick={() => {
+                setArticle(item);
+                setArticle(prevState => ({
+                  ...prevState,
+                  url: "",
+                  text: "",
+                  // Optionally reset summary as well
+                }));
+              }}
               className="link_card"
             >
               <div className="copy_btn" onClick={() => handleCopy(item.url)}>
