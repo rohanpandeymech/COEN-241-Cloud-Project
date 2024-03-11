@@ -50,11 +50,25 @@ const Demo = () => {
     }
   };
 
-  const handleCopy = (copyUrl) => {
-    setCopied(copyUrl);
-    navigator.clipboard.writeText(copyUrl);
+  const handleCopy = (textToCopy) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        setCopied(textToCopy);
+        console.log("Text copied to clipboard");
+        // You can set state here if you want to show a copied indicator
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+      });
+    }
     setTimeout(() => setCopied(false), 3000);
   };
+  
+
+  // const handleCopy = (copyUrl) => {
+  //   setCopied(copyUrl);
+  //   navigator.clipboard.writeText(copyUrl);
+  //   setTimeout(() => setCopied(false), 3000);
+  // };
 
   return (
     <section className="mt-16 w-full max-w-xl">
@@ -67,7 +81,6 @@ const Demo = () => {
               ...prevState,
               url: "",
               text: "",
-              // Optionally reset summary as well
             }));
           }}
           className="toggle_btn" // Style this button accordingly
@@ -127,19 +140,22 @@ const Demo = () => {
             <div
               key={`link-${index}`}
               onClick={() => {
-                setArticle(item);
-                setArticle(prevState => ({
-                  ...prevState,
+                setArticle({
+                  ...item,
                   url: "",
                   text: "",
-                  // Optionally reset summary as well
-                }));
+              });
               }}
               className="link_card"
             >
-              <div className="copy_btn" onClick={() => handleCopy(item.url)}>
+              <div className="copy_btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const textToCopy = item.text|| item.url;
+                  handleCopy(textToCopy);
+                }}>
                 <img
-                  src={copied === item.url ? tick : copy}
+                  src={copied === item.url || copied === item.text ? tick : copy}
                   alt="copy_icon"
                   className="w-[40%] h-[40%] object-contain"
                 />
@@ -160,7 +176,7 @@ const Demo = () => {
           />
         ) : error ? (
           <p className="font-inter font-bold text-black text-center">
-            Something went Wrong....
+            Unable to connect, Please Retry....
             <br />
             <span className="font-satoshi font-normal text-gray-700">
               {error?.data?.error}
