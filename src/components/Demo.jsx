@@ -36,7 +36,7 @@ const Demo = () => {
         summary: data.summary,
       };
       // Use URL or first 50 characters of text as a unique identifier
-      const uniqueIdentifier = inputMode === "url" ? article.url : article.text.substring(0, 50);
+      const uniqueIdentifier = inputMode === "url" ? article.url : article.text.substring(0, 10);
       const articleExists = allArticles.some(
         (item) => item.url === uniqueIdentifier || item.text?.substring(0, 50) === uniqueIdentifier
       );
@@ -62,13 +62,14 @@ const Demo = () => {
     }
     setTimeout(() => setCopied(false), 3000);
   };
-  
 
-  // const handleCopy = (copyUrl) => {
-  //   setCopied(copyUrl);
-  //   navigator.clipboard.writeText(copyUrl);
-  //   setTimeout(() => setCopied(false), 3000);
-  // };
+  const Toast = ({ text }) => {
+    return (
+      <div className="toast">
+        {text}
+      </div>
+    );
+  };
 
   return (
     <section className="mt-16 w-full max-w-xl">
@@ -88,6 +89,7 @@ const Demo = () => {
           Toggle to {inputMode === "url" ? "Text" : "URL"}
         </button>
       </div>
+      {copied && <Toast text={copied} />}
       <div className="flex flex-col w-full gap-2">
         <form className="flex justify-center items-center" onSubmit={handleSubmit}>
           {inputMode === "url" && (
